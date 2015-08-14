@@ -102,6 +102,8 @@ public final class AutoValueRedactedExtension implements AutoValueExtension {
         }
       } else if (propertyType instanceof ArrayTypeName) {
         builder.addCode("$T.toString($N())", Arrays.class, propertyName);
+      } else if (propertyAnnotations.contains("Nullable")) {
+        builder.addCode("($N() != null ? $N() : \"null\")", propertyName, propertyName);
       } else {
         builder.addCode("$N()", propertyName);
       }
