@@ -71,7 +71,7 @@ public final class AutoValueRedactedExtensionTest {
             + "        + \"b=\" + (b() != null ? \"██\" : null) + \", \""
             + "        + \"c=\" + \"██\" + \", \""
             + "        + \"d=\" + d() + \", \""
-            + "        + \"e=\" + e() + \", \""
+            + "        + \"e=\" + (e() != null ? e() : \"null\") + \", \""
             + "        + \"f=\" + f() + \", \""
             + "        + \"g=\" + Arrays.toString(g())"
             + "        + '}';"
