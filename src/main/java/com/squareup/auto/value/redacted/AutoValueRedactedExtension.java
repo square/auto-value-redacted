@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
@@ -94,18 +95,26 @@ public final class AutoValueRedactedExtension implements AutoValueExtension {
       ImmutableSet<String> propertyAnnotations = getAnnotations(propertyElement);
 
       builder.addCode("+ \"$N=\" + ", propertyName);
+
+      CodeBlock propertyToString;
       if (propertyAnnotations.contains("Redacted")) {
-        if (propertyAnnotations.contains("Nullable")) {
-          builder.addCode("($N() != null ? \"██\" : null)", propertyName);
-        } else {
-          builder.addCode("\"██\"");
-        }
+        propertyToString = CodeBlock.builder() //
+            .add("\"██\"") //
+            .build();
       } else if (propertyType instanceof ArrayTypeName) {
-        builder.addCode("$T.toString($N())", Arrays.class, propertyName);
-      } else if (propertyAnnotations.contains("Nullable")) {
-        builder.addCode("($N() != null ? $N() : \"null\")", propertyName, propertyName);
+        propertyToString = CodeBlock.builder() //
+            .add("$T.toString($N())", Arrays.class, propertyName) //
+            .build();
       } else {
-        builder.addCode("$N()", propertyName);
+        propertyToString = CodeBlock.builder() //
+            .add("$N()", propertyName) //
+            .build();
+      }
+
+      if (propertyAnnotations.contains("Nullable")) {
+        builder.addCode("($N() != null ? $L : null)", propertyName, propertyToString);
+      } else {
+        builder.addCode(propertyToString);
       }
 
       if (count++ < properties.size() - 1) {
