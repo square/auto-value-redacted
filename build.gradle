@@ -7,6 +7,9 @@ def artifact = POM_ARTIFACT_ID
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 
+targetCompatibility = JavaVersion.VERSION_1_7
+sourceCompatibility = JavaVersion.VERSION_1_7
+
 repositories {
   maven {
     url 'https://oss.sonatype.org/content/repositories/snapshots/'

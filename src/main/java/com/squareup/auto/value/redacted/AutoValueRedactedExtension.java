@@ -18,7 +18,6 @@ package com.squareup.auto.value.redacted;
 import com.google.auto.service.AutoService;
 import com.google.auto.value.AutoValueExtension;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -27,6 +26,7 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +74,7 @@ public final class AutoValueRedactedExtension implements AutoValueExtension {
   }
 
   private static MethodSpec generateConstructor(Map<String, ExecutableElement> properties) {
-    List<ParameterSpec> params = Lists.newArrayList();
+    List<ParameterSpec> params = new ArrayList<>();
     for (Map.Entry<String, ExecutableElement> entry : properties.entrySet()) {
       TypeName typeName = TypeName.get(entry.getValue().getReturnType());
       params.add(ParameterSpec.builder(typeName, entry.getKey()).build());
@@ -146,7 +146,7 @@ public final class AutoValueRedactedExtension implements AutoValueExtension {
   }
 
   private static ImmutableSet<String> getAnnotations(ExecutableElement element) {
-    ImmutableSet.Builder<String> builder = new ImmutableSet.Builder<String>();
+    ImmutableSet.Builder<String> builder = ImmutableSet.builder();
 
     List<? extends AnnotationMirror> annotations = element.getAnnotationMirrors();
     for (AnnotationMirror annotation : annotations) {
