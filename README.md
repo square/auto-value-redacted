@@ -29,6 +29,19 @@ Add a Gradle dependency:
 compile 'com.squareup.auto.value:auto-value-redacted:0.1-SNAPSHOT'
 ```
 
+or Maven:
+```xml
+<dependency>
+  <groupId>com.squareup.auto.value</groupId>
+  <artifactId>auto-value-redacted</artifactId>
+  <version>0.1-SNAPSHOT</version>
+  <scope>provided</scope>
+</dependency>
+```
+
+Snapshots of the development version are available in [Sonatype's `snapshots` repository][snap].
+
+
 ## License
 
 ```
@@ -46,3 +59,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
+
+
+
+
+ [snap]: https://oss.sonatype.org/content/repositories/snapshots/
