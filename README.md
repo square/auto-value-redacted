@@ -26,8 +26,9 @@ public @interface Redacted {
 Add a Gradle dependency:
 
 ```groovy
-compile 'com.squareup.auto.value:auto-value-redacted:0.1-SNAPSHOT'
+apt 'com.squareup.auto.value:auto-value-redacted:0.1-SNAPSHOT'
 ```
+(Using the [android-apt][apt] plugin)
 
 or Maven:
 ```xml
@@ -64,3 +65,4 @@ limitations under the License.
 
 
  [snap]: https://oss.sonatype.org/content/repositories/snapshots/
+ [apt]: https://bitbucket.org/hvisser/android-apt
