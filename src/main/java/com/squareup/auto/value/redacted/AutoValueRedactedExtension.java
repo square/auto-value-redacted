@@ -16,7 +16,7 @@
 package com.squareup.auto.value.redacted;
 
 import com.google.auto.service.AutoService;
-import com.google.auto.value.AutoValueExtension;
+import com.google.auto.value.extension.AutoValueExtension;
 import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
