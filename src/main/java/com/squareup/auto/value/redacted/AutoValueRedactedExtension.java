@@ -36,7 +36,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
 
 @AutoService(AutoValueExtension.class)
-public final class AutoValueRedactedExtension implements AutoValueExtension {
+public final class AutoValueRedactedExtension extends AutoValueExtension {
 
   @Override
   public boolean applicable(Context context) {
@@ -51,7 +51,7 @@ public final class AutoValueRedactedExtension implements AutoValueExtension {
   }
 
   @Override
-  public boolean mustBeAtEnd(Context context) {
+  public boolean mustBeFinal(Context context) {
     return false;
   }
 
