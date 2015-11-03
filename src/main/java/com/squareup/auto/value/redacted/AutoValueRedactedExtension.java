@@ -51,11 +51,6 @@ public final class AutoValueRedactedExtension extends AutoValueExtension {
   }
 
   @Override
-  public boolean mustBeFinal(Context context) {
-    return false;
-  }
-
-  @Override
   public String generateClass(Context context, String className, String classToExtend,
       boolean isFinal) {
     String packageName = context.packageName();
