@@ -7,20 +7,17 @@ targetCompatibility = JavaVersion.VERSION_1_7
 sourceCompatibility = JavaVersion.VERSION_1_7
 
 repositories {
-  maven {
-    url 'https://oss.sonatype.org/content/repositories/snapshots/'
-  }
   mavenCentral()
 }
 
 dependencies {
   compile 'com.squareup:javapoet:1.1.0'
   compile 'com.google.auto.service:auto-service:1.0-rc2'
-  compile 'com.google.auto.value:auto-value:1.2-SNAPSHOT'
+  compile 'com.google.auto.value:auto-value:1.2-rc1'
 
   testCompile 'junit:junit:4.12'
-  testCompile 'com.google.truth:truth:0.27'
-  testCompile 'com.google.testing.compile:compile-testing:0.7'
+  testCompile 'com.google.truth:truth:0.28'
+  testCompile 'com.google.testing.compile:compile-testing:0.9'
   testCompile files(Jvm.current().getToolsJar())
 }
 
