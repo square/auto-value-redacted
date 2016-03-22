@@ -26,7 +26,7 @@ public @interface Redacted {
 Add a Gradle dependency:
 
 ```groovy
-apt 'com.squareup.auto.value:auto-value-redacted:0.1-SNAPSHOT'
+apt 'com.squareup.auto.value:auto-value-redacted:0.1.0'
 ```
 (Using the [android-apt][apt] plugin)
 
@@ -35,10 +35,12 @@ or Maven:
 <dependency>
   <groupId>com.squareup.auto.value</groupId>
   <artifactId>auto-value-redacted</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.1.0</version>
   <scope>provided</scope>
 </dependency>
 ```
+
+Note: The current release is only confirmed to support AutoValue 1.2-rc1.
 
 Snapshots of the development version are available in [Sonatype's `snapshots` repository][snap].
 
