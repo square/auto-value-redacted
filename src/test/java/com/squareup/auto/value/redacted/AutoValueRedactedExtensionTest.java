@@ -116,4 +116,43 @@ public final class AutoValueRedactedExtensionTest {
         .and()
         .generatesSources(expectedSource);
   }
+
+  @Test public void prefixedMethods() {
+    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", ""
+            + "package test;\n"
+            + "import com.google.auto.value.AutoValue;\n"
+            + "@AutoValue public abstract class Test {\n"
+            + "@Redacted public abstract String getA();\n"
+            + "public abstract String getB();\n"
+            + "@Redacted public abstract boolean isC();\n"
+            + "public abstract boolean isD();\n"
+            + "}\n"
+    );
+
+    JavaFileObject expectedSource = JavaFileObjects.forSourceString("test/AutoValue_Test", ""
+            + "package test;\n"
+            + "import java.lang.Override;\n"
+            + "import java.lang.String;\n"
+            + "final class AutoValue_Test extends $AutoValue_Test {\n"
+            + "  AutoValue_Test(String a, String b, boolean c, boolean d) {\n"
+            + "    super(a, b, c, d);\n"
+            + "  }\n"
+            + "  @Override public final String toString() {\n"
+            + "    return \"Test{\"\n"
+            + "        + \"a=\" + \"██\" + \", \"\n"
+            + "        + \"b=\" + getB() + \", \"\n"
+            + "        + \"c=\" + \"██\" + \", \"\n"
+            + "        + \"d=\" + isD()\n"
+            + "        + '}';\n"
+            + "  }\n"
+            + "}\n"
+    );
+
+    assertAbout(javaSources())
+            .that(Arrays.asList(redacted, nullable, source))
+            .processedWith(new AutoValueProcessor())
+            .compilesWithoutError()
+            .and()
+            .generatesSources(expectedSource);
+  }
 }
