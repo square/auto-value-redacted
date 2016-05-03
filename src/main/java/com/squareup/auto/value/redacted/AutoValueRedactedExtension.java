@@ -15,25 +15,23 @@
  */
 package com.squareup.auto.value.redacted;
 
+import com.gabrielittner.auto.value.util.ElementUtil;
+import com.gabrielittner.auto.value.util.Property;
 import com.google.auto.service.AutoService;
 import com.google.auto.value.extension.AutoValueExtension;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import com.squareup.javapoet.ArrayTypeName;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
+
+import static com.gabrielittner.auto.value.util.AutoValueUtil.newTypeSpecBuilder;
 
 @AutoService(AutoValueExtension.class)
 public final class AutoValueRedactedExtension extends AutoValueExtension {
@@ -42,7 +40,7 @@ public final class AutoValueRedactedExtension extends AutoValueExtension {
   public boolean applicable(Context context) {
     Map<String, ExecutableElement> properties = context.properties();
     for (ExecutableElement element : properties.values()) {
-      if (getAnnotations(element).contains("Redacted")) {
+      if (ElementUtil.hasAnnotationWithName(element, "Redacted")) {
         return true;
       }
     }
@@ -55,12 +53,9 @@ public final class AutoValueRedactedExtension extends AutoValueExtension {
       boolean isFinal) {
     String packageName = context.packageName();
     Name superName = context.autoValueClass().getSimpleName();
-    Map<String, ExecutableElement> properties = context.properties();
+    ImmutableList<Property> properties = properties(context);
 
-    TypeSpec subclass = TypeSpec.classBuilder(className) //
-        .addModifiers(isFinal ? Modifier.FINAL : Modifier.ABSTRACT) //
-        .superclass(ClassName.get(packageName, classToExtend)) //
-        .addMethod(generateConstructor(properties)) //
+    TypeSpec subclass = newTypeSpecBuilder(context, className, classToExtend, isFinal)
         .addMethod(generateToString(superName, properties)) //
         .build();
 
@@ -68,28 +63,8 @@ public final class AutoValueRedactedExtension extends AutoValueExtension {
     return javaFile.toString();
   }
 
-  private static MethodSpec generateConstructor(Map<String, ExecutableElement> properties) {
-    List<ParameterSpec> params = new ArrayList<>();
-    for (Map.Entry<String, ExecutableElement> entry : properties.entrySet()) {
-      TypeName typeName = TypeName.get(entry.getValue().getReturnType());
-      params.add(ParameterSpec.builder(typeName, entry.getKey()).build());
-    }
-
-    StringBuilder body = new StringBuilder("super(");
-    for (int i = properties.size(); i > 0; i--) {
-      body.append("$N");
-      if (i > 1) body.append(", ");
-    }
-    body.append(")");
-
-    return MethodSpec.constructorBuilder() //
-        .addParameters(params) //
-        .addStatement(body.toString(), properties.keySet().toArray()) //
-        .build();
-  }
-
   private static MethodSpec generateToString(Name superName,
-      Map<String, ExecutableElement> properties) {
+      ImmutableList<Property> properties) {
     MethodSpec.Builder builder = MethodSpec.methodBuilder("toString") //
         .addAnnotation(Override.class) //
         .addModifiers(Modifier.PUBLIC, Modifier.FINAL) //
@@ -98,31 +73,26 @@ public final class AutoValueRedactedExtension extends AutoValueExtension {
         .addCode("$>$>");
 
     int count = 0;
-    for (Map.Entry<String, ExecutableElement> entry : properties.entrySet()) {
-      String propertyName = entry.getKey();
-      ExecutableElement propertyElement = entry.getValue();
-      TypeName propertyType = TypeName.get(entry.getValue().getReturnType());
-      ImmutableSet<String> propertyAnnotations = getAnnotations(propertyElement);
-
-      builder.addCode("+ \"$N=\" + ", propertyName);
+    for (Property property : properties) {
+      builder.addCode("+ \"$N=\" + ", property.humanName());
 
       CodeBlock propertyToString;
-      if (propertyAnnotations.contains("Redacted")) {
+      if (property.annotations().contains("Redacted")) {
         propertyToString = CodeBlock.builder() //
             .add("\"██\"") //
             .build();
-      } else if (propertyType instanceof ArrayTypeName) {
+      } else if (property.type() instanceof ArrayTypeName) {
         propertyToString = CodeBlock.builder() //
-            .add("$T.toString($N())", Arrays.class, propertyName) //
+            .add("$T.toString($N())", Arrays.class, property.methodName()) //
             .build();
       } else {
         propertyToString = CodeBlock.builder() //
-            .add("$N()", propertyName) //
+            .add("$N()", property.methodName()) //
             .build();
       }
 
-      if (propertyAnnotations.contains("Nullable")) {
-        builder.addCode("($N() != null ? $L : null)", propertyName, propertyToString);
+      if (property.nullable()) {
+        builder.addCode("($N() != null ? $L : null)", property.methodName(), propertyToString);
       } else {
         builder.addCode(propertyToString);
       }
@@ -140,14 +110,11 @@ public final class AutoValueRedactedExtension extends AutoValueExtension {
         .build();
   }
 
-  private static ImmutableSet<String> getAnnotations(ExecutableElement element) {
-    ImmutableSet.Builder<String> builder = ImmutableSet.builder();
-
-    List<? extends AnnotationMirror> annotations = element.getAnnotationMirrors();
-    for (AnnotationMirror annotation : annotations) {
-      builder.add(annotation.getAnnotationType().asElement().getSimpleName().toString());
+  private static ImmutableList<Property> properties(AutoValueExtension.Context context) {
+    ImmutableList.Builder<Property> values = ImmutableList.builder();
+    for (Map.Entry<String, ExecutableElement> entry : context.properties().entrySet()) {
+      values.add(new Property(entry.getKey(), entry.getValue()));
     }
-
-    return builder.build();
+    return values.build();
   }
 }
