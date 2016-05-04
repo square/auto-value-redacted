@@ -40,8 +40,6 @@ or Maven:
 </dependency>
 ```
 
-Note: The current release is only confirmed to support AutoValue 1.2-rc1.
-
 Snapshots of the development version are available in [Sonatype's `snapshots` repository][snap].
 
 
