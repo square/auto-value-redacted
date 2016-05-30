@@ -3,6 +3,7 @@
 An extension for Google's [AutoValue](https://github.com/google/auto/tree/master/value) that omits
 `@Redacted` field values from `toString()`.
 
+
 ## Usage
 
 Include the extension in your project, define a `@Redacted` annotation, and apply it to any
@@ -16,10 +17,18 @@ public @interface Redacted {
 ```
 
 ```java
-@AutoValue public abstract class User {
-  @Redacted public abstract String name();
+@AutoValue
+public abstract class User {
+  public abstract String name();
+  @Redacted public abstract String phoneNumber();
 }
 ```
+
+When you call `toString()` any `@Redacted` properties are hidden:
+```
+User{name=Bob, phoneNumber=██}
+```
+
 
 ## Download
 
