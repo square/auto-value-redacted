@@ -105,30 +105,36 @@ public final class AutoValueRedactedExtension extends AutoValueExtension {
       TypeName propertyType = TypeName.get(entry.getValue().getReturnType());
       ImmutableSet<String> propertyAnnotations = getAnnotations(propertyElement);
 
+      boolean redacted = propertyAnnotations.contains("Redacted");
+      boolean nullable = propertyAnnotations.contains("Nullable");
+      boolean last = ++count == properties.size();
+
+      // Special-case this configuration since we can pre-concat constant strings.
+      if (redacted && !nullable) {
+        builder.addCode("+ \"$N=██", propertyName);
+        if (!last) builder.addCode(", ");
+        builder.addCode("\"\n");
+        continue;
+      }
+
       builder.addCode("+ \"$N=\" + ", propertyName);
 
       CodeBlock propertyToString;
-      if (propertyAnnotations.contains("Redacted")) {
-        propertyToString = CodeBlock.builder() //
-            .add("\"██\"") //
-            .build();
+      if (redacted) {
+        propertyToString = CodeBlock.of("\"██\"");
       } else if (propertyType instanceof ArrayTypeName) {
-        propertyToString = CodeBlock.builder() //
-            .add("$T.toString($N())", Arrays.class, methodName) //
-            .build();
+        propertyToString = CodeBlock.of("$T.toString($N())", Arrays.class, methodName);
       } else {
-        propertyToString = CodeBlock.builder() //
-            .add("$N()", methodName) //
-            .build();
+        propertyToString = CodeBlock.of("$N()", methodName);
       }
 
-      if (propertyAnnotations.contains("Nullable")) {
+      if (nullable) {
         builder.addCode("($N() != null ? $L : null)", methodName, propertyToString);
       } else {
         builder.addCode(propertyToString);
       }
 
-      if (count++ < properties.size() - 1) {
+      if (!last) {
         builder.addCode(" + \", \"");
       }
 

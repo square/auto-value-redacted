@@ -92,17 +92,17 @@ public final class AutoValueRedactedExtensionTest {
             + "  @Override public final String toString() {\n"
             + "    return \"Test{\"\n"
             // Reference type
-            + "        + \"a=\" + \"██\" + \", \"\n"
+            + "        + \"a=██, \"\n"
             + "        + \"b=\" + (b() != null ? \"██\" : null) + \", \"\n"
             + "        + \"c=\" + (c() != null ? c() : null) + \", \"\n"
             + "        + \"d=\" + d() + \", \"\n"
             // Array type
-            + "        + \"e=\" + \"██\" + \", \"\n"
+            + "        + \"e=██, \"\n"
             + "        + \"f=\" + (f() != null ? \"██\" : null) + \", \"\n"
             + "        + \"g=\" + (g() != null ? Arrays.toString(g()) : null) + \", \"\n"
             + "        + \"h=\" + Arrays.toString(h()) + \", \"\n"
             // Primitive type
-            + "        + \"i=\" + \"██\" + \", \"\n"
+            + "        + \"i=██, \"\n"
             + "        + \"j=\" + j()\n"
             + "        + '}';\n"
             + "  }\n"
@@ -139,10 +139,45 @@ public final class AutoValueRedactedExtensionTest {
         + "  }\n"
         + "  @Override public final String toString() {\n"
         + "    return \"Test{\"\n"
-        + "        + \"one=\" + \"██\" + \", \"\n"
+        + "        + \"one=██, \"\n"
         + "        + \"two=\" + getTwo() + \", \"\n"
         + "        + \"three=\" + (getThree() != null ? \"██\" : null) + \", \"\n"
         + "        + \"four=\" + (getFour() != null ? getFour() : null)\n"
+        + "        + '}';\n"
+        + "  }\n"
+        + "}\n"
+    );
+
+    assertAbout(javaSources())
+        .that(Arrays.asList(redacted, nullable, source))
+        .processedWith(new AutoValueProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expectedSource);
+  }
+
+  @Test public void preConcatStrings() {
+    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", ""
+        + "package test;\n"
+        + "import com.google.auto.value.AutoValue;\n"
+        + "@AutoValue public abstract class Test {\n"
+        + "@Redacted public abstract String one();\n"
+        + "@Redacted public abstract String two();\n"
+        + "}\n"
+    );
+
+    JavaFileObject expectedSource = JavaFileObjects.forSourceString("test/AutoValue_Test", ""
+        + "package test;\n"
+        + "import java.lang.Override;\n"
+        + "import java.lang.String;\n"
+        + "final class AutoValue_Test extends $AutoValue_Test {\n"
+        + "  AutoValue_Test(String one, String two) {\n"
+        + "    super(one, two);\n"
+        + "  }\n"
+        + "  @Override public final String toString() {\n"
+        + "    return \"Test{\"\n"
+        + "        + \"one=██, \"\n"
+        + "        + \"two=██\"\n"
         + "        + '}';\n"
         + "  }\n"
         + "}\n"
