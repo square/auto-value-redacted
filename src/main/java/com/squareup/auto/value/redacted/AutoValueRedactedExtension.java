@@ -101,6 +101,7 @@ public final class AutoValueRedactedExtension extends AutoValueExtension {
     for (Map.Entry<String, ExecutableElement> entry : properties.entrySet()) {
       String propertyName = entry.getKey();
       ExecutableElement propertyElement = entry.getValue();
+      String methodName = propertyElement.getSimpleName().toString();
       TypeName propertyType = TypeName.get(entry.getValue().getReturnType());
       ImmutableSet<String> propertyAnnotations = getAnnotations(propertyElement);
 
@@ -113,16 +114,16 @@ public final class AutoValueRedactedExtension extends AutoValueExtension {
             .build();
       } else if (propertyType instanceof ArrayTypeName) {
         propertyToString = CodeBlock.builder() //
-            .add("$T.toString($N())", Arrays.class, propertyName) //
+            .add("$T.toString($N())", Arrays.class, methodName) //
             .build();
       } else {
         propertyToString = CodeBlock.builder() //
-            .add("$N()", propertyName) //
+            .add("$N()", methodName) //
             .build();
       }
 
       if (propertyAnnotations.contains("Nullable")) {
-        builder.addCode("($N() != null ? $L : null)", propertyName, propertyToString);
+        builder.addCode("($N() != null ? $L : null)", methodName, propertyToString);
       } else {
         builder.addCode(propertyToString);
       }
