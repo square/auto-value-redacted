@@ -116,4 +116,43 @@ public final class AutoValueRedactedExtensionTest {
         .and()
         .generatesSources(expectedSource);
   }
+
+  @Test public void beanPrefix() {
+    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", ""
+        + "package test;\n"
+        + "import com.google.auto.value.AutoValue;\n"
+        + "@AutoValue public abstract class Test {\n"
+        + "@Redacted public abstract String getOne();\n"
+        + "public abstract String getTwo();\n"
+        + "@Redacted @Nullable public abstract String getThree();\n"
+        + "@Nullable public abstract String getFour();\n"
+        + "}\n"
+    );
+
+    JavaFileObject expectedSource = JavaFileObjects.forSourceString("test/AutoValue_Test", ""
+        + "package test;\n"
+        + "import java.lang.Override;\n"
+        + "import java.lang.String;\n"
+        + "final class AutoValue_Test extends $AutoValue_Test {\n"
+        + "  AutoValue_Test(String one, String two, String three, String four) {\n"
+        + "    super(one, two, three, four);\n"
+        + "  }\n"
+        + "  @Override public final String toString() {\n"
+        + "    return \"Test{\"\n"
+        + "        + \"one=\" + \"██\" + \", \"\n"
+        + "        + \"two=\" + getTwo() + \", \"\n"
+        + "        + \"three=\" + (getThree() != null ? \"██\" : null) + \", \"\n"
+        + "        + \"four=\" + (getFour() != null ? getFour() : null)\n"
+        + "        + '}';\n"
+        + "  }\n"
+        + "}\n"
+    );
+
+    assertAbout(javaSources())
+        .that(Arrays.asList(redacted, nullable, source))
+        .processedWith(new AutoValueProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expectedSource);
+  }
 }
