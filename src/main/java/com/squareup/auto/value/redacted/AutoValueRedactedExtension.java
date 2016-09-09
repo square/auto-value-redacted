@@ -17,7 +17,6 @@ package com.squareup.auto.value.redacted;
 
 import com.google.auto.service.AutoService;
 import com.google.auto.value.extension.AutoValueExtension;
-import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -28,8 +27,11 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
@@ -103,7 +105,7 @@ public final class AutoValueRedactedExtension extends AutoValueExtension {
       ExecutableElement propertyElement = entry.getValue();
       String methodName = propertyElement.getSimpleName().toString();
       TypeName propertyType = TypeName.get(entry.getValue().getReturnType());
-      ImmutableSet<String> propertyAnnotations = getAnnotations(propertyElement);
+      Set<String> propertyAnnotations = getAnnotations(propertyElement);
 
       boolean redacted = propertyAnnotations.contains("Redacted");
       boolean nullable = propertyAnnotations.contains("Nullable");
@@ -147,14 +149,14 @@ public final class AutoValueRedactedExtension extends AutoValueExtension {
         .build();
   }
 
-  private static ImmutableSet<String> getAnnotations(ExecutableElement element) {
-    ImmutableSet.Builder<String> builder = ImmutableSet.builder();
+  private static Set<String> getAnnotations(ExecutableElement element) {
+    Set<String> set = new LinkedHashSet<>();
 
     List<? extends AnnotationMirror> annotations = element.getAnnotationMirrors();
     for (AnnotationMirror annotation : annotations) {
-      builder.add(annotation.getAnnotationType().asElement().getSimpleName().toString());
+      set.add(annotation.getAnnotationType().asElement().getSimpleName().toString());
     }
 
-    return builder.build();
+    return Collections.unmodifiableSet(set);
   }
 }
