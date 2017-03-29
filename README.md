@@ -35,16 +35,15 @@ User{name=Bob, phoneNumber=██}
 Add a Gradle dependency:
 
 ```groovy
-apt 'com.squareup.auto.value:auto-value-redacted:1.0.0'
+annotationProcessor 'com.squareup.auto.value:auto-value-redacted:1.0.1'
 ```
-(Using the [android-apt][apt] plugin)
 
 or Maven:
 ```xml
 <dependency>
   <groupId>com.squareup.auto.value</groupId>
   <artifactId>auto-value-redacted</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <scope>provided</scope>
 </dependency>
 ```
