@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+Version 1.1.0 *(2019-02-11)*
+----------------------------
+
+ * Update to auto-value 1.6.3 and opt-in to its incremental annotation processing support.
+
+
 Version 1.0.1 *(2017-03-29)*
 ----------------------------
 
