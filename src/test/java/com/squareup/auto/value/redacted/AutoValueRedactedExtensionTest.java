@@ -190,4 +190,40 @@ public final class AutoValueRedactedExtensionTest {
         .and()
         .generatesSources(expectedSource);
   }
+
+  @Test public void generics() {
+    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", ""
+        + "package test;\n"
+        + "import com.google.auto.value.AutoValue;\n"
+        + "@AutoValue public abstract class Test<T extends String & Runnable, U extends T> {\n"
+        + "@Redacted public abstract T tee();\n"
+        + "public abstract U you();\n"
+        + "}\n"
+    );
+
+    JavaFileObject expectedSource = JavaFileObjects.forSourceString("test/AutoValue_Test", ""
+        + "package test;\n"
+        + "import java.lang.Override;\n"
+        + "import java.lang.Runnable;\n"
+        + "import java.lang.String;\n"
+        + "final class AutoValue_Test<T extends String & Runnable, U extends T> extends $AutoValue_Test<T, U> {\n"
+        + "  AutoValue_Test(T tee, U you) {\n"
+        + "    super(tee, you);\n"
+        + "  }\n"
+        + "  @Override public final String toString() {\n"
+        + "    return \"Test{\"\n"
+        + "        + \"tee=██, \"\n"
+        + "        + \"you=\" + you()\n"
+        + "        + '}';\n"
+        + "  }\n"
+        + "}\n"
+    );
+
+    assertAbout(javaSources())
+        .that(Arrays.asList(redacted, nullable, source))
+        .processedWith(new AutoValueProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expectedSource);
+  }
 }

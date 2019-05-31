@@ -23,8 +23,10 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.TypeVariableName;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,6 +39,8 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.TypeParameterElement;
 
 @AutoService(AutoValueExtension.class)
 public final class AutoValueRedactedExtension extends AutoValueExtension {
@@ -57,17 +61,30 @@ public final class AutoValueRedactedExtension extends AutoValueExtension {
   public String generateClass(Context context, String className, String classToExtend,
       boolean isFinal) {
     String packageName = context.packageName();
-    Name superName = context.autoValueClass().getSimpleName();
+    TypeElement autoValueClass = context.autoValueClass();
+    List<? extends TypeParameterElement> typeParameters = autoValueClass.getTypeParameters();
+    Name superName = autoValueClass.getSimpleName();
     Map<String, ExecutableElement> properties = context.properties();
 
-    TypeSpec subclass = TypeSpec.classBuilder(className) //
+    TypeSpec.Builder subclass = TypeSpec.classBuilder(className) //
         .addModifiers(isFinal ? Modifier.FINAL : Modifier.ABSTRACT) //
-        .superclass(ClassName.get(packageName, classToExtend)) //
         .addMethod(generateConstructor(properties)) //
-        .addMethod(generateToString(superName, properties)) //
-        .build();
+        .addMethod(generateToString(superName, properties));
 
-    JavaFile javaFile = JavaFile.builder(packageName, subclass).build();
+    ClassName superclass = ClassName.get(packageName, classToExtend);
+    if (typeParameters.isEmpty()) {
+      subclass.superclass(superclass);
+    } else {
+      List<TypeVariableName> typeVariables = new ArrayList<>();
+      for (TypeParameterElement typeParameter : typeParameters) {
+        typeVariables.add(TypeVariableName.get(typeParameter));
+      }
+      subclass.addTypeVariables(typeVariables)
+          .superclass(
+              ParameterizedTypeName.get(superclass, typeVariables.toArray(new TypeName[0])));
+    }
+
+    JavaFile javaFile = JavaFile.builder(packageName, subclass.build()).build();
     return javaFile.toString();
   }
 
