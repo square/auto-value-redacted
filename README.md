@@ -35,7 +35,7 @@ User{name=Bob, phoneNumber=██}
 Add a Gradle dependency:
 
 ```groovy
-annotationProcessor 'com.squareup.auto.value:auto-value-redacted:1.1.0'
+annotationProcessor 'com.squareup.auto.value:auto-value-redacted:1.1.1'
 ```
 
 or Maven:
@@ -43,7 +43,7 @@ or Maven:
 <dependency>
   <groupId>com.squareup.auto.value</groupId>
   <artifactId>auto-value-redacted</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1</version>
   <scope>provided</scope>
 </dependency>
 ```

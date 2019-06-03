@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+Version 1.1.1 *(2019-06-02)*
+----------------------------
+
+ * Fix: Support generic types.
+ * Update to auto-value 1.6.5.
+
+
 Version 1.1.0 *(2019-02-11)*
 ----------------------------
 
